@@ -11,6 +11,7 @@ import Menu from './MenuComponent';
 import Dishdetail from './DishdetailComponent';
 import Contact from './ContactComponent';
 import About from './AboutComponent';
+import Reservation from './ReservationComponent';
 
 const mapStateToProps = state => {
     return {
@@ -143,6 +144,28 @@ function ContactNavigatorScreen() {
     );
 }
 
+const ReservationNavigator = createStackNavigator();
+
+function ReservationNavigatorScreen() {
+    return (
+        <ReservationNavigator.Navigator
+            initialRouteName='Reserve Table'
+            screenOptions={HeaderOptions}
+        >
+            <ReservationNavigator.Screen
+                name="Reserve Table"
+                component={Reservation}
+                options={
+                    ({ navigation }) => ({
+                        headerLeft: () =>
+                            <MenuIcon navigation={navigation} />
+                    })
+                }
+            />
+        </ReservationNavigator.Navigator>
+    );
+}
+
 const AboutUsNavigator = createStackNavigator();
 
 function AboutUsNavigatorScreen() {
@@ -162,8 +185,7 @@ function AboutUsNavigatorScreen() {
                 }
             />
         </AboutUsNavigator.Navigator>
-
-    )
+    );
 }
 
 const MainNavigator = createDrawerNavigator();
@@ -227,6 +249,20 @@ function MainNavigatorDrawer() {
                     drawerIcon: ({ tintColor }) => (
                         <Icon
                             name='info-circle'
+                            type='font-awesome'
+                            size={22}
+                            color={tintColor}
+                        />
+                    )
+                }}
+            />
+            <MainNavigator.Screen
+                name="Reserve Table"
+                component={ReservationNavigatorScreen}
+                options={{
+                    drawerIcon: ({ tintColor }) => (
+                        <Icon
+                            name='cutlery'
                             type='font-awesome'
                             size={22}
                             color={tintColor}
