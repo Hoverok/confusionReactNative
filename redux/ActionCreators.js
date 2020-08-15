@@ -149,12 +149,6 @@ export const postFavorite = (dishId) => (dispatch) => {
     }, 2000);
 };
 
-
-export const addFavorite = (dishId) => ({
-    type: ActionTypes.ADD_FAVORITE,
-    payload: dishId
-});
-
 export const addComment = (comment) => ({
     type: ActionTypes.ADD_COMMENT,
     payload: comment
@@ -193,3 +187,13 @@ export const postComment = (dishId, rating, comment, author) => (dispatch) => {
         .then(response => setTimeout(() => { dispatch(addComment(response)) }, 2000))
         .catch(error => { console.log('post comments', errorr.message); alert('Your comment cannot be posted\nError: ' + error.message); });
 };
+
+export const deleteFavorite = (dishId) => ({
+    type: ActionTypes.DELETE_FAVORITE,
+    payload: dishId
+});  
+
+export const addFavorite = (dishId) => ({
+    type: ActionTypes.ADD_FAVORITE,
+    payload: dishId
+});
