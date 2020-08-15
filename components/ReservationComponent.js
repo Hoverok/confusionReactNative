@@ -107,8 +107,6 @@ class Reservation extends Component {
                         <Text style={styles.modalText}>Number of Guests: {this.state.guests}</Text>
                         <Text style={styles.modalText}>Smoking?: {this.state.smoking ? 'Yes' : 'No'}</Text>
                         <Text style={styles.modalText}>Date and Time: {this.state.date ? 'Current year' : 'Also current year'}</Text>
-
-
                         <Button
                             onPress={() => { this.toggleModal(); this.resetForm(); }}
                             color="#512DA8"
