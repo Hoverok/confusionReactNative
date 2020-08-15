@@ -6,6 +6,7 @@ import { LEADERS } from '../shared/leaders';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
 import { Loading } from './LoadingComponent';
+import * as Animatable from 'react-native-animatable';
 
 const mapStateToProps = state => {
     return {
@@ -53,20 +54,21 @@ function RenderLeadership(props) {
         }
         else if (this.props.leaders.errMess) {
             return (
-                <Card title='Corporate Leadership'>
-                    <Text>{this.props.leaders.errMess}</Text>
-                </Card>
+                    <Card
+                        title='Corporate Leadership'>
+                        <Text>{this.props.leaders.errMess}</Text>
+                    </Card>
             );
         }
         else {
             return (
-                <Card title='Corporate Leadership'>
-                    <FlatList
-                        data={leaders}
-                        renderItem={renderLeader}
-                        keyExtractor={item => item.id.toString()}
-                    />
-                </Card>
+                    <Card title='Corporate Leadership'>
+                        <FlatList
+                            data={leaders}
+                            renderItem={renderLeader}
+                            keyExtractor={item => item.id.toString()}
+                        />
+                    </Card>
             );
         }
     }
@@ -80,9 +82,12 @@ class About extends Component {
     render() {
         return (
             <ScrollView>
+                <Animatable.View animation="fadeInDown" duration={2000} delay={1000}>
                 <RenderHistory />
                 <RenderLeadership leaders={this.props.leaders.leaders} />
+                </Animatable.View>
             </ScrollView>
+
         );
     }
 }
