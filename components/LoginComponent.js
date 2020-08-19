@@ -166,9 +166,18 @@ class RegisterTab extends Component {
         );
         console.log(processedImage);
         this.setState({ imageUrl: processedImage.uri });
-
     }
 
+    getImageFromGallery = async () => {
+        let selectImage = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: true,
+            aspect: [4, 3],
+        });
+        if (!selectImage.cancelled) {
+            console.log(selectImage);
+            this.processImage(selectImage.uri);
+        }
+    }
     static navigationOptions = {
         title: 'Register',
         tabBarIcon: ({ tintColor, focused }) => (
@@ -201,6 +210,10 @@ class RegisterTab extends Component {
                         <Button
                             title="Camera"
                             onPress={this.getImageFromCamera}
+                        />
+                        <Button
+                            title="Gallery"
+                            onPress={this.getImageFromGallery}
                         />
                     </View>
                     <Input
@@ -275,6 +288,7 @@ const styles = StyleSheet.create({
     imageContainer: {
         flex: 1,
         flexDirection: 'row',
+        justifyContent: 'space-around',
         margin: 20
     },
     image: {

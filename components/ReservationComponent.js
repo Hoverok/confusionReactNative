@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, Picker, Switch, Button, ScrollView, Alert } from 'react-native';
-import { Card } from 'react-native-elements';
-import DatePicker from 'react-native-datepicker'
+import { Text, View, StyleSheet, Picker, Switch, Button, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { Icon } from 'react-native-elements';
 import * as Animatable from 'react-native-animatable';
 import { Notifications } from 'expo';
 import * as Permissions from 'expo-permissions';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import Moment from 'moment';
+import * as Calendar from 'expo-calendar';
+
 
 class Reservation extends Component {
 
@@ -14,7 +17,8 @@ class Reservation extends Component {
         this.state = {
             guests: 1,
             smoking: false,
-            date: '',
+            date: new Date(),
+            mode: 'date'
         }
     }
     //this probs needs to go
@@ -22,7 +26,45 @@ class Reservation extends Component {
         title: 'Reserve Table',
     };
 
+    async obtainCalendarPermission() {
+        let permission = await Permissions.getAsync(Permissions.CALENDAR);
+        if (permission.status !== 'granted') {
+            permission = await Permissions.askAsync(Permissions.CALENDAR);
+            if (permission.status !== 'granted') {
+                Alert.alert('Permission not granted to calendar');
+            }
+        }
+        return permission;
+    }
 
+    async addReservationToCalendar(date) {
+        await this.obtainCalendarPermission();
+        let dateMs = Date.parse(date);
+        let startDate = new Date(dateMs);
+        let endDate = new Date(dateMs + 2 * 60 * 60 * 1000);
+        const defaultCalendarSource =
+            Platform.OS === 'ios'
+                ? await getDefaultCalendarSource()
+                : { isLocalAccount: true, name: 'Expo Calendar' };
+        let details = {
+            title: 'Con Fusion Table Reservation',
+            source: defaultCalendarSource,
+            name: 'internalCalendarName',
+            color: 'blue',
+            entityType: Calendar.EntityTypes.EVENT,
+            sourceId: defaultCalendarSource.id,
+            ownerAccount: 'personal',
+            accessLevel: Calendar.CalendarAccessLevel.OWNER,
+        }
+        const calendarId = await Calendar.createCalendarAsync(details);
+        await Calendar.createEventAsync(calendarId, {
+            title: 'Con Fusion Table Reservation',
+            startDate: startDate,
+            endDate: endDate,
+            timeZone: 'Asia/Hong_Kong',
+            location: '121, Clear Water Bay Road, Clear Water Bay, Kowloon, Hong Kong'
+        });
+    }
     handleReservation() {
         console.log(JSON.stringify(this.state));
         Alert.alert(
@@ -33,6 +75,7 @@ class Reservation extends Component {
                 {
                     text: 'OK', onPress: () => {
                         this.presentLocalNotification(this.state.date);
+                        this.addReservationToCalendar(this.state.date);
                         this.resetForm();
                     }
                 },
@@ -45,7 +88,8 @@ class Reservation extends Component {
         this.setState({
             guests: 1,
             smoking: false,
-            date: '',
+            date: new Date(),
+            mode: 'date'
         });
     }
     async obtainNotificationPermission() {
@@ -113,29 +157,40 @@ class Reservation extends Component {
                     </View>
                     <View style={styles.formRow}>
                         <Text style={styles.formLabel}>Date and Time</Text>
-                        <DatePicker
-                            style={{ flex: 2, marginRight: 20 }}
-                            date={this.state.date}
-                            format=''
-                            mode="datetime"
-                            placeholder="select date and Time"
-                            minDate="2017-01-01"
-                            confirmBtnText="Confirm"
-                            cancelBtnText="Cancel"
-                            customStyles={{
-                                dateIcon: {
-                                    position: 'absolute',
-                                    left: 0,
-                                    top: 4,
-                                    marginLeft: 0
-                                },
-                                dateInput: {
-                                    marginLeft: 36
-                                }
-                                // ... You can check the source to find the other keys. 
+                        <TouchableOpacity style={styles.formItem}
+                            style={{
+                                padding: 7,
+                                borderColor: '#512DA8',
+                                borderWidth: 2,
+                                flexDirection: "row"
                             }}
-                            onDateChange={(date) => { this.setState({ date: date }) }}
-                        />
+                            onPress={() => this.setState({ show: true, mode: 'date' })}
+                        >
+                            <Icon type='font-awesome' name='calendar' color='#512DA8' />
+                            <Text >
+                                {' ' + Moment(this.state.date).format('DD-MMM-YYYY h:mm A')}
+                            </Text>
+                        </TouchableOpacity>
+                        {this.state.show && (
+                            <DateTimePicker
+                                value={this.state.date}
+                                mode={this.state.mode}
+                                minimumDate={new Date()}
+                                minuteInterval={30}
+                                onChange={(event, date) => {
+                                    if (date === undefined) {
+                                        this.setState({ show: false });
+                                    }
+                                    else {
+                                        this.setState({
+                                            show: this.state.mode === "time" ? false : true,
+                                            mode: "time",
+                                            date: new Date(date)
+                                        });
+                                    }
+                                }}
+                            />
+                        )}
                     </View>
                     <View style={styles.formRow}>
                         <Button
